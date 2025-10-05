@@ -1,0 +1,70 @@
+// ============================================
+// E-commerce Catalog with Nested Document Structure in MongoDB
+// ============================================
+
+// Step 1: Create Database and Collection
+use ecommerceDB;
+db.createCollection("products");
+
+// Step 2: Insert Sample Product Documents
+db.products.insertMany([
+  {
+    name: "T-Shirt",
+    price: 499,
+    category: "Clothing",
+    variants: [
+      { color: "Red", size: "M", stock: 30 },
+      { color: "Blue", size: "L", stock: 25 },
+      { color: "Black", size: "S", stock: 10 }
+    ]
+  },
+  {
+    name: "Running Shoes",
+    price: 1999,
+    category: "Footwear",
+    variants: [
+      { color: "White", size: "8", stock: 15 },
+      { color: "Black", size: "9", stock: 8 }
+    ]
+  },
+  {
+    name: "Smartwatch",
+    price: 4999,
+    category: "Electronics",
+    variants: [
+      { color: "Silver", size: "Standard", stock: 12 },
+      { color: "Black", size: "Standard", stock: 5 }
+    ]
+  }
+]);
+
+// Step 3: Retrieve All Products
+print("=== All Products ===");
+db.products.find().pretty();
+
+// Step 4: Filter Products by Category (e.g., Clothing)
+print("=== Products in Clothing Category ===");
+db.products.find({ category: "Clothing" }).pretty();
+
+// Step 5: Project Specific Fields (Only name and variants.color)
+print("=== Product Names and Variant Colors ===");
+db.products.find({}, { name: 1, "variants.color": 1, _id: 0 }).pretty();
+
+// Step 6: Query Nested Documents (Products having variant color Black)
+print("=== Products having Black Variant ===");
+db.products.find({ "variants.color": "Black" }).pretty();
+
+// Step 7: Update a Nested Variant’s Stock (Increase Blue T-Shirt stock by 5)
+print("=== Updating Blue T-Shirt stock by +5 ===");
+db.products.updateOne(
+  { name: "T-Shirt", "variants.color": "Blue", "variants.size": "L" },
+  { $inc: { "variants.$.stock": 5 } }
+);
+
+// Step 8: Delete a Product (Remove Smartwatch)
+print("=== Deleting Product: Smartwatch ===");
+db.products.deleteOne({ name: "Smartwatch" });
+
+// Step 9: Final Output after all operations
+print("=== Final Product Collection ===");
+db.products.find().pretty();
